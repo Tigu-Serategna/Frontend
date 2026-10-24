@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tigu Seratega | Home</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="src/css/index.css">
+    <link rel="icon" href="public/icon.png"> </head>
+
+<body>
+    <nav class="navbar glass-panel">
+        <div class="container nav-container">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <div class="logo-icon"> <img class="logo-icon" src="public/icon.png" alt="logo"> </div>
+                <div>
+                    <h1 style="font-size: 1.25rem;">Tigu Seratega</h1>
+                    <p style="font-size: 0.75rem; color: var(--primary); font-weight: 800;">ትጉ ሠራተኛ</p>
+                </div>
+            </div>
+            <div class="nav-links"> <a href="#features">Features</a> <a href="plan.html">Pricing</a> <a href="#contact">Contact</a> </div>
+            <div id="nav-right-auth" class="flex gap-2">
+                <button onclick="toggleTheme()" style="padding: 0.5rem; color: var(--text-muted);"><i data-lucide="moon"></i></button> <a href="login.html" class="btn btn-outline">Sign In</a> <a href="create.html" class="btn btn-primary">Join Network</a> </div>
+        </div>
+    </nav>
+    <header class="hero">
+        <div class="container">
+            <div class="animate-float" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-light); color: var(--primary); padding: 0.5rem 1rem; border-radius: var(--radius-full); font-weight: 800; font-size: 0.875rem; margin-bottom: 2rem;"> <span style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: pulse-ring 1.5s infinite;"></span>Verified Network in Ethiopia </div>
+            <h1 class="animate-slide-up">Hire Certified Local <br><span class="text-gradient">Services</span> & Jobs <span class="text-gradient">Opportunity</span></h1>
+            <p class="animate-slide-up" style="animation-delay: 0.1s;">Connect with verified electricians, plumbers, developers, and builders. Transparent pricing, protected contact info, and real-time job matching.</p>
+            <div class="flex justify-center gap-4 animate-slide-up" style="animation-delay: 0.2s;"> <a href="create.html?role=taker" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">Hire a Professional</a> <a href="create.html?role=provider" class="btn btn-outline" style="padding: 1rem 2rem; font-size: 1.1rem;">Find Work</a> </div>
+        </div>
+    </header>
+    <section id="features" class="features">
+        <div class="container text-center">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Why Choose Us?</h2>
+            <p style="color: var(--text-muted); margin-bottom: 4rem;">We provide a secure, transparent, and efficient platform.</p>
+            <div class="grid grid-cols-3 gap-8">
+                <div class="feature-card glass-panel">
+                    <div style="width: 64px; height: 64px; background: var(--primary-light); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--primary);"><i data-lucide="shield-check" style="width: 32px;"></i></div>
+                    <h3 style="margin-bottom: 1rem;">Verified Providers</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Every artisan is manually verified to ensure top quality.</p>
+                </div>
+                <div class="feature-card glass-panel">
+                    <div style="width: 64px; height: 64px; background: #fef3c7; border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #d97706;"><i data-lucide="lock" style="width: 32px;"></i></div>
+                    <h3 style="margin-bottom: 1rem;">Phone Privacy</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Contact numbers remain masked until mutual confirmation.</p>
+                </div>
+                <div class="feature-card glass-panel">
+                    <div style="width: 64px; height: 64px; background: #dbeafe; border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #2563eb;"><i data-lucide="message-circle" style="width: 32px;"></i></div>
+                    <h3 style="margin-bottom: 1rem;">Direct Chat</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Communicate securely once an order is accepted.</p>
+                </div>
+                <div class="feature-card glass-panel">
+                    <div style="width: 64px; height: 64px; background: #dbeafe; border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #2563eb;"><i data-lucide="job" style="width: 32px;"></i></div>
+                    <h3 style="margin-bottom: 1rem;">Job Opportunity</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">User can get Any type of Jobs and apply for free.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="contact" class="contact-section">
+        <div class="container" style="max-width: 600px;">
+            <div class="glass-panel" style="padding: 3rem;">
+                <h2 class="text-center" style="margin-bottom: 2rem;">Send Feedback</h2>
+                <form onsubmit="submitFeedback(event)">
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="fb-name" required placeholder="Your Name" class="input-field">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="email" id="fb-email" required placeholder="Your Email" class="input-field">
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <textarea id="fb-message" required rows="4" placeholder="Your Message..." class="input-field"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="logo" style="margin-bottom: 1rem;">
+                        <div class="logo-icon"><img src="public/icon.png" alt="logo"></div>
+                        <h1 style="color: white;">Tigu Seratega</h1></div>
+                    <p style="font-size: 0.9rem; line-height: 1.6;">Connecting verified skilled service providers with direct employers and clients across Addis Ababa and regional Ethiopian hubs.</p>
+                </div>
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem;">Navigation</h4>
+                    <ul style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
+                        <li><a href="#">Overview</a></li>
+                        <li><a href="plan.html">Pricing</a></li>
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="admin.html">Admin</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem;">Developers</h4>
+                    <ul style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
+                        <li>Dawit Birhanu (FrontEnd)</li>
+                        <li>Nardos Fekadu (FrontEnd)</li>
+                        <li>Kebron Ashenafi (Front & BackEnd)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center" style="padding-top: 2rem; border-top: 1px solid #1e293b; font-size: 0.8rem;">&copy; 2026 Tigu Seratega. All rights reserved.</div>
+        </div>
+    </footer>
+    <div id="toast-container" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 999;"></div>
+    <script src="src/js/index.js"></script>
+</body>
+
+</html>
