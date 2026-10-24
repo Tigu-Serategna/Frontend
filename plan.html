@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing | Tigu Seratega</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="src/css/plan.css">
+    <link rel="icon" href="public/icon.png"> </head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center" style="margin-bottom: 3rem;">Choose Your Plan</h1>
+        <div class="grid">
+            <div class="card glass-panel">
+                <h3>Free Trial</h3>
+                <div class="price">0 <span>ETB</span></div>
+                <p class="validity">14 days validity</p>
+                <ul>
+                    <li><i data-lucide="check"></i> 3 limited proposals</li>
+                    <li><i data-lucide="check"></i> Basic search placement</li>
+                </ul>
+                <button onclick="selectPlan('F', 0)" class="btn btn-outline">Start Free Trial</button>
+            </div>
+            <div class="card glass-panel">
+                <h3>Starter Weekly</h3>
+                <div class="price">49 <span>ETB</span></div>
+                <p class="validity">7 days validity</p>
+                <ul>
+                    <li><i data-lucide="check"></i> 5 verified job proposals</li>
+                    <li><i data-lucide="check"></i> Client phone privacy</li>
+                </ul>
+                <button onclick="selectPlan('A', 49)" class="btn btn-outline">Choose Starter</button>
+            </div>
+            <div class="card glass-panel popular">
+                <div class="badge">Most Popular</div>
+                <h3>Professional Monthly</h3>
+                <div class="price" style="color: var(--primary);">149 <span>ETB</span></div>
+                <p class="validity">30 days validity</p>
+                <ul>
+                    <li><i data-lucide="check"></i> Unlimited job proposals</li>
+                    <li><i data-lucide="check"></i> Priority search placement</li>
+                    <li><i data-lucide="check"></i> Google Sheet auto-sync</li>
+                </ul>
+                <button onclick="selectPlan('B', 149)" class="btn btn-primary">Choose Pro</button>
+            </div>
+            <div class="card glass-panel">
+                <h3>Enterprise Yearly</h3>
+                <div class="price">1,200 <span>ETB</span></div>
+                <p class="validity">365 days validity</p>
+                <ul>
+                    <li><i data-lucide="check"></i> Instant Golden Badge ⭐</li>
+                    <li><i data-lucide="check"></i> Unlimited proposals</li>
+                    <li><i data-lucide="check"></i> 24/7 Telegram VIP desk</li>
+                </ul>
+                <button onclick="selectPlan('C', 1200)" class="btn btn-outline">Choose Enterprise</button>
+            </div>
+        </div>
+    </div>
+    <div id="toast-container" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 999;"></div>
+    <script src="src/js/plan.js"></script>
+</body>
+
+</html>

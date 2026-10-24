@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment | Tigu Seratega</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+    <link rel="stylesheet" href="src/css/payment.css">
+    <link rel="icon" href="public/icon.png">
+    <style>
+    .scan-overlay {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(4px);
+        z-index: 10;
+        border-radius: 0.75rem;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-weight: 800;
+    }
+    
+    .dark .scan-overlay {
+        background: rgba(15, 23, 42, 0.8);
+    }
+    </style>
+</head>
+
+<body>
+    <div class="card glass-panel" style="position: relative;">
+        <div id="scan-overlay" class="scan-overlay"> <i data-lucide="loader-2" class="animate-spin" style="width: 48px; height: 48px; margin-bottom: 1rem;"></i>
+            <p id="scan-progress-text">Scanning Receipt... 0%</p>
+        </div>
+        <div class="header">
+            <div>
+                <h1>Checkout</h1>
+                <p id="plan-name">Pro Monthly</p>
+            </div>
+            <div style="text-align: right;">
+                <p style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">TOTAL</p>
+                <p id="plan-price" style="font-size: 1.5rem; font-weight: 900; color: var(--primary);">149 ETB</p>
+            </div>
+        </div>
+        <div class="methods">
+            <button onclick="setMethod('telebirr')" id="btn-telebirr" class="btn active">Telebirr</button>
+            <button onclick="setMethod('cbebirr')" id="btn-cbebirr" class="btn">CBE Birr</button>
+            <button onclick="setMethod('bank')" id="btn-bank" class="btn">Bank</button>
+        </div>
+        <div class="account-info glass-panel">
+            <div style="background: white; padding: 0.5rem; border-radius: 0.5rem;"><img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=Telebirr-0911001122" style="width: 96px; height: 96px;"></div>
+            <div style="flex: 1; margin-left: 1rem;">
+                <p style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Account Number</p>
+                <div class="flex justify-between items-center">
+                    <p id="account-number" style="font-family: monospace; font-size: 1.25rem; font-weight: 800;">0911001122</p>
+                    <button onclick="copyAcc()" style="background: var(--bg-body); border: 1px solid var(--border); padding: 0.5rem; border-radius: 0.5rem; cursor: pointer;"><i data-lucide="copy" style="width: 16px;"></i></button>
+                </div>
+                <p style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-top: 0.25rem;">Name: TiguSeratega</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Upload Payment Screenshot *</label>
+            <input type="file" id="screenshotInput" accept="image/*" onchange="processScreenshot(event)">
+            <div id="ocr-result" class="hidden" style="margin-top: 1rem;">
+                <label style="display: flex; justify-content: space-between; align-items: center;"><span>Extracted Text</span><span style="color: var(--primary); font-size: 0.75rem;"><i data-lucide="check-circle" style="width: 14px; display: inline; vertical-align: middle;"></i> Verified</span></label>
+                <textarea id="extractedText" rows="5" readonly style="cursor: not-allowed; font-family: monospace; font-size: 0.85rem; background: var(--bg-body); border-color: var(--primary);"></textarea>
+            </div>
+        </div>
+        <button onclick="submitPayment()" id="submitBtn" class="btn btn-primary w-full" disabled style="opacity: 0.5; cursor: not-allowed;"><i data-lucide="lock" style="width: 16px; margin-right: 8px;"></i> Waiting for Scan...</button>
+    </div>
+    <div id="toast-container" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 999;"></div>
+    <script src="src/js/payment.js"></script>
+</body>
+
+</html>
