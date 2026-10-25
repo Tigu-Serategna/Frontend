@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Studio | Tigu Seratega</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="src/css/dashboard-provider.css">
+    <link rel="icon" href="public/icon.png"> </head>
+
+<body>
+    <nav class="navbar glass-panel">
+        <div class="nav-container">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <div class="logo-icon"><img class="logo-icon" src="public/icon.png" alt="logo"></div>
+                <div class="logo-text">
+                    <h1>TeguSeratega</h1>
+                    <p>ትጉ ሠራተኛ</p>
+                </div>
+            </div>
+            <div class="nav-links"><a href="index.html">Home</a><a href="#">Find a pro</a><a href="#">Find jobs</a></div>
+            <div class="nav-actions">
+                <button class="icon-btn" onclick="switchTab('notifications')" style="position: relative;"><i data-lucide="bell"></i><span id="nav-notif-dot" class="notif-dot hidden"></span><span id="nav-notif-count" class="notif-count hidden">0</span></button>
+                <button onclick="toggleTheme()" class="icon-btn" id="theme-toggle"><i data-lucide="moon"></i></button>
+                <div class="user-pill" onclick="openEditModal()"><img id="nav-avatar" src="https://via.placeholder.com/150"><span id="nav-name">Loading...</span></div>
+                <button onclick="logout()" class="icon-btn text-red"><i data-lucide="log-out"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="dashboard-container">
+        <header class="workspace-header">
+            <div class="flex-between">
+                <div>
+                    <p class="workspace-label">PROVIDER WORKSPACE</p>
+                    <h1>Welcome, <span id="header-name">User</span> 👋</h1>
+                    <p class="text-muted" style="margin-top: 0.5rem;">Manage your jobs, proposals, and client chats.</p>
+                </div>
+                <button onclick="openEditModal()" class="btn-outline">Edit profile</button>
+            </div>
+        </header>
+        <div class="layout-grid">
+            <aside class="sidebar-card glass-panel">
+                <div class="user-profile-mini">
+                    <div class="avatar-initials" id="avatar-initials">P</div>
+                    <div>
+                        <h4 id="side-name">User</h4>
+                        <p class="text-muted" id="plan-badge">[F] Trial</p>
+                    </div>
+                </div>
+                <nav class="side-nav">
+                    <div class="nav-item active" onclick="switchTab('overview')"><i data-lucide="layout-grid"></i> Overview</div>
+                    <div class="nav-item" onclick="switchTab('orders')"><i data-lucide="file-text"></i> Orders</div>
+                    <div class="nav-item" onclick="switchTab('jobs')"><i data-lucide="briefcase"></i> Jobs</div>
+                    <div class="nav-item" onclick="switchTab('create-job')"><i data-lucide="plus-circle"></i> Create Job</div>
+                    <div class="nav-item" onclick="switchTab('chats')"><i data-lucide="message-square"></i> Chat</div>
+                    <div class="nav-item" onclick="switchTab('notifications')"><i data-lucide="bell"></i> Notifications <span id="side-notif-count" class="count-badge hidden">0</span></div>
+                    <div class="nav-item text-red" onclick="logout()"><i data-lucide="log-out"></i> Log out</div>
+                </nav>
+            </aside>
+            <div class="main-content-card glass-panel">
+                <!-- AMAZING HORIZONTAL OVERVIEW -->
+                <div id="content-overview" class="tab-content active">
+                    <h2 class="section-title">Overview</h2>
+                    <div class="horizontal-stats">
+                        <div class="h-stat-card glass-panel"><i data-lucide="file-text" class="h-icon text-blue"></i>
+                            <div>
+                                <h4>Total Orders</h4>
+                                <p id="p-stat-orders">0</p>
+                            </div>
+                        </div>
+                        <div class="h-stat-card glass-panel"><i data-lucide="check-circle" class="h-icon text-green"></i>
+                            <div>
+                                <h4>Accepted</h4>
+                                <p id="p-stat-accepted" class="text-green">0</p>
+                            </div>
+                        </div>
+                        <div class="h-stat-card glass-panel"><i data-lucide="x-circle" class="h-icon text-red"></i>
+                            <div>
+                                <h4>Declined</h4>
+                                <p id="p-stat-declined" class="text-red">0</p>
+                            </div>
+                        </div>
+                        <div class="h-stat-card glass-panel"><i data-lucide="briefcase" class="h-icon text-blue"></i>
+                            <div>
+                                <h4>Jobs Created</h4>
+                                <p id="p-stat-created">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="content-orders" class="tab-content">
+                    <h2 class="section-title">Orders</h2>
+                    <div class="tabs">
+                        <button class="pill active" onclick="filterOrders('all', this)">All</button>
+                        <button class="pill" onclick="filterOrders('pending', this)">Waiting</button>
+                        <button class="pill" onclick="filterOrders('accepted', this)">Accepted</button>
+                        <button class="pill" onclick="filterOrders('declined', this)">Declined</button>
+                    </div>
+                    <div id="provider-orders-list" class="flex-col"></div>
+                </div>
+                <div id="content-jobs" class="tab-content">
+                    <h2 class="section-title">Available Jobs (Apply Free)</h2>
+                    <div id="all-jobs-list" class="jobs-grid-layout"></div>
+                </div>
+                <div id="content-create-job" class="tab-content">
+                    <div class="grid-layout-inner">
+                        <div class="form-card glass-panel" style="padding: 1.5rem; border-radius: 1rem;">
+                            <h2 class="section-title" style="font-size: 1.2rem;">Post a New Job</h2>
+                            <form onsubmit="createJob(event)">
+                                <div class="form-group">
+                                    <label>Job Title</label>
+                                    <input type="text" id="job-title" required class="glass-input" placeholder="Villa Wiring">
+                                </div>
+                                <div class="form-group">
+                                    <label>City</label>
+                                    <input type="text" id="job-city" required class="glass-input" placeholder="Addis Ababa">
+                                </div>
+                                <div class="form-group">
+                                    <label>Budget (ETB)</label>
+                                    <input type="number" id="job-budget" required class="glass-input" placeholder="12500">
+                                </div>
+                                <div class="form-group">
+                                    <label>Vacancies</label>
+                                    <input type="number" id="job-vacancies" required class="glass-input" placeholder="1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea id="job-desc" required class="glass-input" placeholder="Requirements..."></textarea>
+                                </div>
+                                <button type="submit" id="publish-btn" class="btn-primary w-full" style="display: flex; justify-content: center; align-items: center; gap: 0.5rem;">Publish Job</button>
+                            </form>
+                        </div>
+                        <div>
+                            <h2 class="section-title" style="font-size: 1.2rem;">My Created Jobs</h2>
+                            <div id="my-jobs-list" class="flex-col"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="content-chats" class="tab-content">
+                    <h2 class="section-title">My Chats</h2>
+                    <div id="chats-list" class="flex-col"></div>
+                </div>
+                <div id="content-notifications" class="tab-content">
+                    <h2 class="section-title">Notifications</h2>
+                    <div id="notifications-list" class="flex-col"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Edit Profile Modal (Fixed) -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-overlay" onclick="closeModal('edit-modal')"></div>
+        <div class="modal-content glass-modal" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <button type="button" onclick="closeModal('edit-modal')" class="close-btn"><i data-lucide="x"></i></button>
+            </div>
+            <form onsubmit="saveProfile(event)">
+                <div class="avatar-upload-container">
+                    <div class="avatar-preview" onclick="document.getElementById('edit-img-file').click()"><img id="edit-img-preview" src="https://via.placeholder.com/150">
+                        <div class="camera-overlay"><i data-lucide="camera"></i></div>
+                    </div>
+                    <input type="file" id="edit-img-file" accept="image/*" onchange="previewImage(event)" style="display: none;">
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="edit-name" class="glass-input">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="edit-phone" class="glass-input">
+                </div>
+                <div class="form-group">
+                    <label>Services</label>
+                    <input type="text" id="edit-services" class="glass-input">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="edit-location" class="glass-input">
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="edit-bio" class="glass-input" rows="2"></textarea>
+                </div>
+                <button type="submit" id="save-profile-btn" class="btn-primary w-full" style="margin-top: 1rem;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="modal">
+        <div class="modal-overlay" onclick="closeModal('chat-modal')"></div>
+        <div class="modal-content glass-modal flex-col" style="height: 500px;">
+            <div class="modal-header">
+                <div>
+                    <h3 id="chat-title">Chat</h3>
+                    <p class="text-muted" style="font-size:0.75rem;">Order #<span id="chat-order-id"></span></p>
+                </div>
+                <button type="button" onclick="closeModal('chat-modal')" class="close-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div id="chat-box" style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; background: rgba(0,0,0,0.02);"></div>
+            <form onsubmit="sendChatMessage(event)" class="chat-form">
+                <input type="text" id="chat-input" required class="glass-input" placeholder="Type...">
+                <button type="submit" class="btn-primary" style="border-radius: 50%; padding: 0.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><i data-lucide="send" style="width: 16px;"></i></button>
+            </form>
+        </div>
+    </div>
+    <!-- Proposals Modal -->
+    <div id="proposals-modal" class="modal">
+        <div class="modal-overlay" onclick="closeModal('proposals-modal')"></div>
+        <div class="modal-content glass-modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="prop-job-title">Proposals</h3>
+                <button type="button" onclick="closeModal('proposals-modal')" class="close-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div id="job-proposals-list" class="flex-col"></div>
+        </div>
+    </div>
+    <div id="toast-container"></div>
+    <script src="src/js/dashboard-provider.js"></script>
+</body>
+
+</html>
