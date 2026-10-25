@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+	--primary: #2563eb;
+	--bg-body: #f8fafc;
+	--bg-glass: rgba(255, 255, 255, 0.85);
+	--text-main: #0f172a;
+	--text-muted: #64748b;
+	--border: #e2e8f0;
+}
+
+.dark {
+	--bg-body: #0f172a;
+	--bg-glass: rgba(15, 23, 42, 0.85);
+	--text-main: #f8fafc;
+	--text-muted: #94a3b8;
+	--border: #334155;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: 'Inter', sans-serif;
+}
+
+body {
+	background: var(--bg-body);
+	color: var(--text-main);
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2rem;
+}
+
+.glass-panel {
+	background: var(--bg-glass);
+	backdrop-filter: blur(16px);
+	border: 1px solid var(--border);
+	box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.card {
+	max-width: 400px;
+	padding: 3rem 2rem;
+	border-radius: 1.5rem;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.icon-container {
+	width: 96px;
+	height: 96px;
+	background: #fef3c7;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 2rem;
+	position: relative;
+}
+
+#status-icon {
+	width: 40px;
+	height: 40px;
+	color: #d97706;
+	z-index: 10;
+}
+
+.spinner {
+	position: absolute;
+	inset: 0;
+	border: 4px solid #f59e0b;
+	border-top-color: transparent;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border-radius: 50px;
+	font-weight: 800;
+	background: #fef3c7;
+	color: #d97706;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(0.8);
+		opacity: 0.8;
+	}
+
+	100% {
+		transform: scale(1.5);
+		opacity: 0;
+	}
+}
