@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Tigu Seratega</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="src/css/admin.css">
+    <link rel="icon" href="public/icon.png">
+    <style>
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: var(--bg-sidebar); width: 100%; max-width: 500px; border-radius: var(--radius); padding: 2rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); position: relative; z-index: 101; }
+        .modal-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--text-main); }
+        .detail-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .detail-label { color: var(--text-muted); font-weight: 600; }
+        .detail-value { font-weight: 700; color: var(--text-main); }
+        .ocr-box { background: var(--bg-body); padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.85rem; color: var(--text-main); margin-top: 0.5rem; border: 1px solid var(--border); max-height: 150px; overflow-y: auto; white-space: pre-wrap; }
+        .modal-actions { display: flex; gap: 1rem; margin-top: 2rem; }
+        .modal-actions button { flex: 1; padding: 0.75rem; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; }
+        .inner-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .inner-tab { padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; cursor: pointer; background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border); transition: 0.2s; }
+        .inner-tab:hover { background: var(--primary-light); color: var(--brand); }
+        .inner-tab.active { background: var(--brand); color: white; border-color: var(--brand); }
+    </style>
+</head>
+<body>
+    <aside class="sidebar glass-panel">
+        <div class="sidebar-logo"><img class="logo-icon" src="public/icon.png" alt="logo"> Tigu Admin</div>
+        <div class="menu-item active" onclick="switchTab('overview')"><i data-lucide="home"></i> Overview</div>
+        <div class="menu-item" onclick="switchTab('payments')"><i data-lucide="credit-card"></i> Payment Review</div>
+        <div class="menu-item" onclick="switchTab('takers')"><i data-lucide="user-check"></i> Service Takers</div>
+        <div class="menu-item" onclick="switchTab('providers')"><i data-lucide="users"></i> Service Providers</div>
+        <div class="menu-item" onclick="switchTab('revenue')"><i data-lucide="dollar-sign"></i> Income Revenue</div>
+        <div class="menu-item" onclick="switchTab('feedbacks')"><i data-lucide="message-square"></i> Feedbacks</div>
+        <div class="menu-item" onclick="switchTab('notifications')"><i data-lucide="bell"></i> Notifications</div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar glass-panel">
+            <h2 id="page-title" style="font-size: 1.5rem; font-weight: 700;">Overview</h2>
+            <div class="top-actions">
+                <div class="search-bar"><i data-lucide="search"></i><input type="text" placeholder="Search..."></div>
+                <i data-lucide="bell"></i>
+                <div class="user-profile"><img src="https://i.pravatar.cc/150?u=admin" alt="Admin"> Admin <i data-lucide="chevron-down"></i></div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <!-- OVERVIEW -->
+            <div id="content-overview" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card glass-panel"><h3>Total Users</h3><p id="adm-total-users">0</p></div>
+                    <div class="stat-card glass-panel"><h3>Total Orders</h3><p id="adm-total-orders">0</p></div>
+                    <div class="stat-card glass-panel"><h3 style="color: #10b981;">Accepted</h3><p id="adm-accepted" style="color: #10b981;">0</p></div>
+                    <div class="stat-card glass-panel"><h3 style="color: #ef4444;">Declined</h3><p id="adm-declined" style="color: #ef4444;">0</p></div>
+                    <div class="stat-card glass-panel"><h3>Free Plan</h3><p id="adm-free">0</p></div>
+                    <div class="stat-card glass-panel"><h3>Weekly</h3><p id="adm-weekly">0</p></div>
+                    <div class="stat-card glass-panel"><h3>Monthly</h3><p id="adm-monthly">0</p></div>
+                    <div class="stat-card glass-panel"><h3>Yearly</h3><p id="adm-yearly">0</p></div>
+                    <div class="stat-card glass-panel"><h3 style="color: #f59e0b;">Pending</h3><p id="adm-pending" style="color: #f59e0b;">0</p></div>
+                    <div class="stat-card glass-panel"><h3 style="color: #ef4444;">Failed</h3><p id="adm-fail" style="color: #ef4444;">0</p></div>
+                    <div class="stat-card glass-panel" style="grid-column: span 2; background: var(--primary-light); border-color: var(--brand);"><h3 style="color: var(--brand);">Total Revenue</h3><p id="adm-revenue" style="color: var(--brand);">0 ETB</p></div>
+                </div>
+            </div>
+
+            <!-- PAYMENT REVIEW -->
+            <div id="content-payments" class="tab-content hidden">
+                <div class="inner-tabs">
+                    <button class="inner-tab active" onclick="renderPayments('All', this)">All</button>
+                    <button class="inner-tab" onclick="renderPayments('Pending', this)">Pending</button>
+                    <button class="inner-tab" onclick="renderPayments('Approved', this)">Approved</button>
+                    <button class="inner-tab" onclick="renderPayments('Rejected', this)">Rejected</button>
+                </div>
+                <div class="table-card glass-panel">
+                    <table>
+                        <thead><tr><th>User Phone</th><th>Plan</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody id="adm-payments-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SERVICE TAKERS -->
+            <div id="content-takers" class="tab-content hidden">
+                <div class="table-card glass-panel">
+                    <table>
+                        <thead><tr><th>Name</th><th>Phone</th><th>Location</th><th>Total Requests</th><th>Accepted</th><th>Declined</th></tr></thead>
+                        <tbody id="adm-takers-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SERVICE PROVIDERS -->
+            <div id="content-providers" class="tab-content hidden">
+                <div class="inner-tabs">
+                    <button class="inner-tab active" onclick="renderProviders('All', this)">All</button>
+                    <button class="inner-tab" onclick="renderProviders('Pending', this)">Pending</button>
+                    <button class="inner-tab" onclick="renderProviders('Active', this)">Active (Paid)</button>
+                    <button class="inner-tab" onclick="renderProviders('Failed', this)">Failed/Rejected</button>
+                </div>
+                <div class="table-card glass-panel">
+                    <table>
+                        <thead><tr><th>Name</th><th>Phone</th><th>Plan</th><th>Status</th><th>Total Orders</th><th>Accepted</th><th>Declined</th></tr></thead>
+                        <tbody id="adm-providers-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- INCOME REVENUE -->
+            <div id="content-revenue" class="tab-content hidden">
+                <div class="table-card glass-panel">
+                    <table>
+                        <thead><tr><th>User Phone</th><th>Plan</th><th>Amount Paid</th><th>Method</th><th>Date</th></tr></thead>
+                        <tbody id="adm-revenue-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FEEDBACKS -->
+            <div id="content-feedbacks" class="tab-content hidden">
+                <div class="table-card glass-panel">
+                    <table>
+                        <thead><tr><th>Name</th><th>Email</th><th>Message</th><th>Date</th></tr></thead>
+                        <tbody id="adm-feedback-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- NOTIFICATIONS -->
+            <div id="content-notifications" class="tab-content hidden">
+                <div class="table-card glass-panel">
+                    <table>
+                        <thead><tr><th>Phone</th><th>Title</th><th>Message</th><th>Timestamp</th></tr></thead>
+                        <tbody id="adm-notifications-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-box glass-panel">
+            <div class="flex justify-between items-center"><h3 class="modal-title">Payment Verification</h3><button onclick="closeModal()" style="background:none; border:none; cursor:pointer;"><i data-lucide="x"></i></button></div>
+            <div class="detail-row"><span class="detail-label">User Phone</span><span class="detail-value" id="modal-phone">-</span></div>
+            <div class="detail-row"><span class="detail-label">Plan</span><span class="detail-value" id="modal-plan">-</span></div>
+            <div class="detail-row"><span class="detail-label">Method</span><span class="detail-value" id="modal-method">-</span></div>
+            <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value" id="modal-amount">-</span></div>
+            <div style="margin-top: 1rem;"><span class="detail-label">Extracted OCR Text</span><div class="ocr-box" id="modal-ocr">-</div></div>
+            <div class="modal-actions">
+                <button onclick="closeModal()" style="background: var(--bg-body); color: var(--text-main);">Close</button>
+                <button id="modal-approve-btn" style="background: #10b981; color: white;">Approve</button>
+                <button id="modal-fail-btn" style="background: #ef4444; color: white;">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/js/admin.js"></script>
+</body>
+</html>
