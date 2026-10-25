@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard | Tigu Seratega</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="styles.css"> </head>
+
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <div class="logo-icon">TS</div>
+                <div class="logo-text">
+                    <h1>Client Dashboard</h1></div>
+            </div>
+            <div id="nav-right-auth" class="nav-actions">
+                <button onclick="toggleTheme()" style="padding: 0.5rem; color: var(--text-muted);"><i data-lucide="sun" class="hidden dark:block"></i><i data-lucide="moon" class="block dark:hidden"></i></button>
+                <button onclick="logout()" style="padding: 0.5rem; color: var(--text-muted);"><i data-lucide="log-out"></i></button>
+            </div>
+        </div>
+    </nav>
+    <main class="container" style="padding: 2rem 1.5rem; flex: 1;">
+        <div class="profile-header">
+            <div class="flex items-center gap-6">
+                <div class="avatar-lg"><img id="user-avatar" src="https://via.placeholder.com/150" alt="Profile"></div>
+                <div>
+                    <div class="flex items-center gap-3" style="margin-bottom: 0.5rem;">
+                        <h2 style="font-size: 1.75rem;" id="user-name">Loading...</h2><span class="badge badge-green">Service Taker</span></div>
+                    <div class="flex gap-4 text-sm text-muted font-bold"><span class="flex items-center gap-1"><i data-lucide="phone" style="width: 16px;"></i> <span id="user-phone">...</span></span><span class="flex items-center gap-1"><i data-lucide="map-pin" style="width: 16px;"></i> <span id="user-location">...</span></span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="openModal('edit-modal')" class="btn btn-outline">Edit Profile</button>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card premium-card">
+                <h3 class="stat-label">Total Orders</h3>
+                <p class="stat-value" id="stat-total">0</p>
+            </div>
+            <div class="stat-card premium-card">
+                <h3 class="stat-label" style="color: var(--gold);">Pending</h3>
+                <p class="stat-value gold" id="stat-pending">0</p>
+            </div>
+            <div class="stat-card premium-card">
+                <h3 class="stat-label" style="color: var(--brand);">Accepted</h3>
+                <p class="stat-value green" id="stat-accepted">0</p>
+            </div>
+            <div class="stat-card premium-card">
+                <h3 class="stat-label" style="color: #ef4444;">Declined</h3>
+                <p class="stat-value red" id="stat-declined">0</p>
+            </div>
+        </div>
+        <div class="tabs">
+            <button onclick="switchTab('providers')" id="tab-btn-providers" class="tab-btn active"><i data-lucide="map" style="width: 16px; vertical-align: middle; margin-right: 4px;"></i> Nearby Providers</button>
+            <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn"><i data-lucide="clipboard-list" style="width: 16px; vertical-align: middle; margin-right: 4px;"></i> My Orders</button>
+            <button onclick="switchTab('jobs')" id="tab-btn-jobs" class="tab-btn"><i data-lucide="briefcase" style="width: 16px; vertical-align: middle; margin-right: 4px;"></i> Jobs</button>
+        </div>
+        <div id="content-providers" class="tab-content active">
+            <div class="map-bg premium-card" id="radar-container" style="margin-bottom: 2rem;">
+                <div class="radar-sweep"></div>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 20;" id="radar-user-center">
+                    <div style="width: 40px; height: 40px; background: #ccfbf1; color: #0d9488; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: var(--shadow-lg); position: relative;"><i data-lucide="navigation" style="width: 20px; fill: currentColor;"></i>
+                        <div class="marker-ping"></div>
+                    </div>
+                    <div style="margin-top: 0.5rem; background: var(--bg-card); font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.75rem; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border);">You</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-6" id="provider-grid"></div>
+        </div>
+        <div id="content-orders" class="tab-content">
+            <h2 style="margin-bottom: 1.5rem;">My Service Requests</h2>
+            <div id="orders-list" class="flex flex-col gap-4"></div>
+        </div>
+        <div id="content-jobs" class="tab-content">
+            <h2 style="margin-bottom: 1.5rem;">Job Opportunities</h2>
+            <div class="grid grid-cols-3 gap-6" id="jobs-grid"></div>
+        </div>
+    </main>
+    <!-- EDIT MODAL -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-overlay" onclick="closeModal('edit-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size: 1.25rem;">Edit Profile</h3>
+                <button class="modal-close" onclick="closeModal('edit-modal')"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="saveProfile(event)">
+                    <div class="text-center" style="margin-bottom: 1.5rem;">
+                        <div style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--brand); overflow: hidden; background: var(--bg-body); margin: 0 auto 0.5rem;"><img id="edit-img-preview" src="https://via.placeholder.com/150" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                        <label style="cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--brand);">Upload New Photo
+                            <input type="file" id="edit-img-file" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" id="edit-name" required class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number *</label>
+                        <input type="tel" id="edit-phone" required class="input-field">
+                    </div>
+                    <div class="form-group" style="position: relative;">
+                        <label class="form-label">Location (Optional)</label>
+                        <input type="text" id="edit-location" autocomplete="off" oninput="renderCityList('edit-location', 'edit-city-list')" class="input-field" placeholder="Start typing city...">
+                        <ul id="edit-city-list" class="card hidden" style="position: absolute; width: 100%; z-index: 20; margin-top: 0.5rem; max-height: 200px; overflow-y: auto; padding: 0;"></ul>
+                    </div>
+                    <button type="submit" id="save-profile-btn" class="btn btn-shimmer w-full" style="margin-top: 1rem;">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- CHAT MODAL -->
+    <div id="chat-modal" class="modal">
+        <div class="modal-overlay" onclick="closeModal('chat-modal')"></div>
+        <div class="modal-content flex flex-col" style="height: 600px; max-height: 90vh;">
+            <div class="modal-header" style="background: var(--bg-body);">
+                <div>
+                    <h3 id="chat-title">Chat</h3>
+                    <p class="text-xs text-muted font-bold">Order #<span id="chat-order-id"></span></p>
+                </div>
+                <button class="modal-close" onclick="closeModal('chat-modal')"><i data-lucide="x"></i></button>
+            </div>
+            <div id="chat-box" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background: var(--bg-body);"></div>
+            <form onsubmit="sendChatMessage(event)" class="flex gap-2" style="padding: 1rem; border-top: 1px solid var(--border);">
+                <input type="text" id="chat-input" required class="input-field" placeholder="Type a message..." style="border-radius: var(--radius-full);">
+                <button type="submit" class="btn btn-primary" style="border-radius: 50%; padding: 0.75rem;"><i data-lucide="send"></i></button>
+            </form>
+        </div>
+    </div>
+    <!-- HIRE MODAL -->
+    <div id="modal-hire" class="modal">
+        <div class="modal-overlay" onclick="closeModal('modal-hire')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 id="hire-name">Provider</h3>
+                    <p class="text-xs text-muted" id="hire-craft">Craft</p>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-hire')"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="submitHire(event)">
+                    <div class="badge badge-green" style="width: 100%; margin-bottom: 1.5rem; padding: 1rem; text-transform: none; font-size: 0.8rem; display: flex; gap: 0.5rem; align-items: flex-start;"><i data-lucide="lock" style="width: 20px; flex-shrink: 0;"></i> Contact numbers remain masked until the provider accepts your request.</div>
+                    <div class="form-group">
+                        <label class="form-label">Description *</label>
+                        <textarea id="hire-desc" required rows="3" class="input-field" placeholder="Describe the work needed..."></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label">Rate (ETB) *</label>
+                            <input type="number" id="hire-price" required value="2500" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date *</label>
+                            <input type="date" id="hire-date" required class="input-field">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-shimmer w-full" style="margin-top: 1rem;">Send Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- APPLY MODAL -->
+    <div id="apply-modal" class="modal">
+        <div class="modal-overlay" onclick="closeModal('apply-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Apply for Job</h3>
+                <button class="modal-close" onclick="closeModal('apply-modal')"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="submitProposal(event)">
+                    <input type="hidden" id="apply-job-id">
+                    <input type="hidden" id="apply-employer-phone">
+                    <h4 id="apply-job-title" class="font-bold" style="margin-bottom: 1rem; color: var(--brand);"></h4>
+                    <div class="form-group">
+                        <label class="form-label">Expected Pay (ETB) *</label>
+                        <input type="number" id="apply-pay" required class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cover Note *</label>
+                        <textarea id="apply-note" required rows="3" class="input-field" placeholder="Explain why you are a good fit..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-shimmer w-full">Submit Proposal</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="toast-container"></div>
+    <script src="shared.js"></script>
+    <script>
+    let user = getUser(),
+        providers = [],
+        jobs = [],
+        orders = [],
+        activeChatOrderId = null;
+    document.addEventListener('DOMContentLoaded', async() => {
+        lucide.createIcons();
+        if(!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        const daysLeft = calculateDaysLeft(user.planExpiry);
+        const planName = user.plan === 'A' ? 'Weekly' : user.plan === 'B' ? 'Monthly' : user.plan === 'C' ? 'VIP Yearly' : user.plan === 'F' ? 'Free Trial' : 'Pending';
+        document.getElementById('user-name').innerText = `${user.name} (${planName} - ${daysLeft}d left)`;
+        document.getElementById('user-phone').innerText = user.phone;
+        document.getElementById('user-location').innerText = user.location || 'Not Set';
+        if(user.image) document.getElementById('user-avatar').src = user.image;
+        const p = await apiCall('getProviders');
+        if(p.status === 'success') {
+            providers = p.data;
+            renderProviders();
+            renderRadar();
+        }
+        const j = await apiCall('getJobs');
+        if(j.status === 'success') {
+            jobs = j.data;
+            renderJobs();
+        }
+        const o = await apiCall('getTakerOrders', {
+            phone: user.phone
+        });
+        if(o.status === 'success') {
+            orders = o.data;
+            renderOrders();
+        }
+    });
+
+    function switchTab(id) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`tab-btn-${id}`).classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`content-${id}`).classList.add('active');
+    }
+
+    function renderRadar() {
+        const container = document.getElementById('radar-container');
+        const oldMarkers = container.querySelectorAll('.provider-marker');
+        oldMarkers.forEach(m => m.remove());
+        providers.slice(0, 5).forEach((p) => {
+            const coords = getRadarCoords(p.location || 'Addis Ababa');
+            const offsetX = (Math.random() - 0.5) * 10;
+            const offsetY = (Math.random() - 0.5) * 10;
+            const x = Math.max(10, Math.min(90, coords.x + offsetX));
+            const y = Math.max(10, Math.min(90, coords.y + offsetY));
+            const marker = document.createElement('div');
+            marker.className = 'provider-marker';
+            marker.style.cssText = `position: absolute; left: ${x}%; top: ${y}%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; z-index: 10; cursor: pointer;`;
+            marker.onclick = () => openHireModal(p.name, p.service, p.phone);
+            marker.innerHTML = `<div style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; background: var(--bg-card); box-shadow: var(--shadow-md); overflow: hidden; position: relative;"><img src="${p.image || 'https://via.placeholder.com/150'}" style="width: 100%; height: 100%; object-fit: cover;"><div style="position: absolute; bottom: 0; right: 0; width: 10px; height: 10px; background: var(--brand); border-radius: 50%; border: 1px solid white;"></div></div>`;
+            container.appendChild(marker);
+        });
+    }
+
+    function renderProviders() {
+        document.getElementById('provider-grid').innerHTML = providers.map(p => `<div class="card premium-card flex-col" style="display: flex; padding: 1.5rem;"><div class="flex justify-between items-start" style="margin-bottom: 1rem;"><div class="flex items-center gap-3"><img src="${p.image || 'https://via.placeholder.com/150'}" style="width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--border); object-fit: cover;"><div><h4 class="font-extrabold" style="font-size: 1rem;">${p.name} ${p.plan === 'C' ? '⭐' : ''}</h4><p class="text-xs text-muted font-bold" style="margin-top: 0.25rem;"><i data-lucide="map-pin" style="width: 14px; vertical-align: middle;"></i> ${p.location || 'Ethiopia'}</p></div></div><div class="badge badge-gold" style="display: flex; align-items: center; gap: 0.25rem;"><i data-lucide="star" style="width: 14px; fill: currentColor;"></i> ${(parseFloat(p.rating)||5.0).toFixed(1)}</div></div><p class="text-sm text-muted" style="margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${p.bio || 'Verified pro.'}</p><div style="margin-top: auto;"><div class="flex justify-between items-center" style="background: var(--bg-body); padding: 0.75rem 1rem; border-radius: var(--radius-lg); margin-bottom: 1rem; border: 1px solid var(--border);"><span class="text-xs font-bold text-muted"><i data-lucide="phone" style="width: 14px; vertical-align: middle;"></i> Masked</span><span class="text-xs font-extrabold" style="color: var(--brand); text-transform: uppercase;">Unlocks on accept</span></div><div class="flex justify-between items-center"><span class="text-xs font-bold text-muted">${p.orders||0} jobs done</span><button onclick="openHireModal('${p.name}', '${p.service}', '${p.phone}')" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.8rem;">Request</button></div></div></div>`).join('');
+        lucide.createIcons();
+    }
+
+    function renderOrders() {
+        document.getElementById('stat-total').innerText = orders.length;
+        document.getElementById('stat-pending').innerText = orders.filter(o => o.status === 'pending').length;
+        document.getElementById('stat-accepted').innerText = orders.filter(o => o.status === 'accepted').length;
+        document.getElementById('stat-declined').innerText = orders.filter(o => o.status === 'declined').length;
+        document.getElementById('orders-list').innerHTML = orders.map(o => `<div class="card premium-card"><div class="flex justify-between" style="margin-bottom: 1rem;"><div><h4 class="font-extrabold" style="font-size: 1.1rem;">${o.providerName}</h4><p class="text-xs text-muted font-bold">${o.service} · ${o.date}</p></div><p style="font-size: 1.25rem; font-weight: 900;">${o.price} ETB</p></div><div class="flex justify-between items-center" style="padding-top: 1rem; border-top: 1px solid var(--border);"><span class="badge ${o.status === 'accepted' ? 'badge-green' : 'badge-gold'}" style="display: flex; align-items: center; gap: 0.25rem;"><i data-lucide="${o.status === 'accepted' ? 'unlock' : 'lock'}" style="width: 14px;"></i> ${o.status === 'accepted' ? o.providerPhone : '+251 91 *** ****'}</span>${o.status === 'accepted' ? ` < button onclick = "openChat('${o.id}', '${o.providerName}')"
+                class = "btn btn-primary"
+                style = "padding: 0.5rem 1rem; font-size: 0.8rem;" > < i data - lucide = "message-circle"
+                style = "width: 16px;" > < /i> Chat</button > ` : ` < button onclick = "simulateAccept('${o.id}')"
+                class = "btn"
+                style = "background: var(--text-main); color: var(--bg-body); padding: 0.5rem 1rem; font-size: 0.8rem;" > Simulate Accept < /button>`}</div > < /div>`).join(''); lucide.createIcons(); }
+                function renderJobs() {
+                    document.getElementById('jobs-grid').innerHTML = jobs.map(j => `<div class="card premium-card flex-col" style="display: flex;"><h4 class="font-extrabold" style="margin-bottom: 0.5rem;">${j.title}</h4><p class="text-xs font-bold text-muted" style="margin-bottom: 0.75rem;"><i data-lucide="building-2" style="width: 16px; vertical-align: middle; color: var(--brand);"></i> ${j.employer}</p><p class="text-sm text-muted" style="margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${j.description}</p><div class="flex justify-between items-center" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border);"><div><p class="text-xs text-muted font-extrabold" style="text-transform: uppercase;">Budget</p><p class="font-extrabold" style="color: var(--brand); font-size: 1.1rem;">${parseInt(j.budget).toLocaleString()} ETB</p></div><button onclick="openApplyJobModal('${j.id}', '${j.title}', '${j.employerPhone}')" class="btn btn-primary" style="padding: 0.5rem 1.25rem; font-size: 0.8rem;">Apply</button></div></div>`).join('');
+                    lucide.createIcons();
+                }
+
+                function openModal(id) {
+                    document.getElementById(id).classList.add('show');
+                }
+
+                function closeModal(id) {
+                    document.getElementById(id).classList.remove('show');
+                    if(id === 'chat-modal') {
+                        clearInterval(window.chatInterval);
+                        activeChatOrderId = null;
+                    }
+                }
+
+                function openHireModal(name, service, phone) {
+                    document.getElementById('hire-name').innerText = name;
+                    document.getElementById('hire-craft').innerText = service || 'Professional';
+                    document.getElementById('hire-date').valueAsDate = new Date();
+                    openModal('modal-hire');
+                }
+
+                function openApplyJobModal(jobId, jobTitle, employerPhone) {
+                    if(!['A', 'B', 'C'].includes(user.plan)) {
+                        showToast('You must purchase a plan to apply for jobs!', 'alert-circle');
+                        setTimeout(() => window.location.href = 'plan.html', 1500);
+                        return;
+                    }
+                    document.getElementById('apply-job-id').value = jobId;
+                    document.getElementById('apply-job-title').innerText = jobTitle;
+                    document.getElementById('apply-employer-phone').value = employerPhone;
+                    openModal('apply-modal');
+                }
+
+                function openEditModal() {
+                    document.getElementById('edit-name').value = user.name;
+                    document.getElementById('edit-phone').value = user.phone;
+                    document.getElementById('edit-location').value = user.location || '';
+                    if(user.image) document.getElementById('edit-img-preview').src = user.image;
+                    openModal('edit-modal');
+                }
+
+                function previewImage(e) {
+                    const file = e.target.files[0];
+                    if(file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            document.getElementById('edit-img-preview').src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+                async function saveProfile(e) {
+                    e.preventDefault();
+                    const btn = document.getElementById('save-profile-btn');
+                    btn.disabled = true;
+                    btn.innerText = 'Saving...';
+                    const fileInput = document.getElementById('edit-img-file');
+                    let imageUrl = user.image || '';
+                    if(fileInput.files.length > 0) {
+                        const base64 = await fileToBase64(fileInput.files[0]);
+                        const uploadRes = await apiCall('uploadImage', {
+                            base64: base64,
+                            fileName: user.phone
+                        });
+                        if(uploadRes.status === 'success') {
+                            imageUrl = uploadRes.url;
+                        } else {
+                            showToast(uploadRes.message || 'Image upload failed', 'alert-circle');
+                            btn.disabled = false;
+                            btn.innerText = 'Save Changes';
+                            return;
+                        }
+                    }
+                    const newName = document.getElementById('edit-name').value;
+                    const newPhone = document.getElementById('edit-phone').value;
+                    const newLoc = document.getElementById('edit-location').value;
+                    const res = await apiCall('updateProfile', {
+                        oldPhone: user.phone,
+                        role: 'taker',
+                        newName: newName,
+                        newPhone: newPhone,
+                        location: newLoc,
+                        image: imageUrl
+                    });
+                    if(res.status === 'success') {
+                        user.name = newName;
+                        user.phone = cleanPhone(newPhone);
+                        user.location = newLoc;
+                        user.image = imageUrl;
+                        setUser(user);
+                        document.getElementById('user-name').innerText = newName + ` (${planName} - ${daysLeft}d left)`;
+                        document.getElementById('user-phone').innerText = newPhone;
+                        document.getElementById('user-location').innerText = newLoc || 'Not Set';
+                        if(imageUrl) document.getElementById('user-avatar').src = imageUrl;
+                        closeModal('edit-modal');
+                        showToast('Profile updated!', 'check-circle');
+                    } else {
+                        showToast('Failed to update.', 'alert-circle');
+                    }
+                    btn.disabled = false;
+                    btn.innerText = 'Save Changes';
+                }
+                async function submitHire(e) {
+                    e.preventDefault();
+                    const data = {
+                        id: 'ORD-' + Math.floor(Math.random() * 10000),
+                        providerName: document.getElementById('hire-name').innerText,
+                        providerPhone: '',
+                        takerName: user.name,
+                        takerPhone: user.phone,
+                        service: document.getElementById('hire-craft').innerText,
+                        status: 'pending',
+                        price: document.getElementById('hire-price').value,
+                        date: document.getElementById('hire-date').value
+                    };
+                    const provider = providers.find(p => p.name === data.providerName);
+                    if(provider) data.providerPhone = provider.phone;
+                    const res = await apiCall('hireProvider', data);
+                    if(res.status === 'success') {
+                        orders.unshift(data);
+                        renderOrders();
+                        closeModal('modal-hire');
+                        switchTab('orders');
+                        showToast('Request sent!', 'check-circle');
+                        confetti({
+                            particleCount: 100,
+                            spread: 70
+                        });
+                    } else {
+                        showToast('Failed.', 'alert-circle');
+                    }
+                }
+                async function submitProposal(e) {
+                    e.preventDefault();
+                    const data = {
+                        jobId: document.getElementById('apply-job-id').value,
+                        jobTitle: document.getElementById('apply-job-title').innerText,
+                        applicantName: user.name,
+                        applicantPhone: user.phone,
+                        employerPhone: document.getElementById('apply-employer-phone').value,
+                        expectedPay: document.getElementById('apply-pay').value,
+                        coverNote: document.getElementById('apply-note').value
+                    };
+                    const res = await apiCall('applyJob', data);
+                    if(res.status === 'success') {
+                        closeModal('apply-modal');
+                        showToast('Proposal sent to employer!', 'check-circle');
+                        confetti({
+                            particleCount: 100,
+                            spread: 70
+                        });
+                    } else {
+                        showToast('Failed to send proposal.', 'alert-circle');
+                    }
+                }
+                async function simulateAccept(id) {
+                    const res = await apiCall('updateOrderStatus', {
+                        id: id,
+                        status: 'accepted'
+                    });
+                    if(res.status === 'success') {
+                        const o = orders.find(x => x.id === id);
+                        if(o) {
+                            o.status = 'accepted';
+                            renderOrders();
+                            showToast('Accepted! Contact unlocked.', 'unlock');
+                            confetti({
+                                particleCount: 150
+                            });
+                        }
+                    }
+                }
+
+                function openChat(orderId, providerName) {
+                    activeChatOrderId = orderId;
+                    document.getElementById('chat-title').innerText = providerName;
+                    document.getElementById('chat-order-id').innerText = orderId;
+                    document.getElementById('chat-box').innerHTML = '<p class="text-center text-xs text-muted">Loading...</p>';
+                    openModal('chat-modal');
+                    fetchChatHistory();
+                    window.chatInterval = setInterval(fetchChatHistory, 3000);
+                }
+                async function fetchChatHistory() {
+                    if(!activeChatOrderId) return;
+                    const res = await apiCall('getChat', {
+                        orderId: activeChatOrderId
+                    });
+                    if(res.status === 'success') {
+                        const box = document.getElementById('chat-box');
+                        box.innerHTML = res.data.map(c => {
+                            const isMe = cleanPhone(c.senderPhone) === cleanPhone(user.phone);
+                            return `<div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};"><div style="max-width: 75%; padding: 0.75rem; border-radius: 1rem; font-size: 0.9rem; ${isMe ? 'background: var(--brand); color: white; border-bottom-right-radius: 0;' : 'background: var(--bg-card); border: 1px solid var(--border); border-bottom-left-radius: 0;'}">${c.message}</div></div>`;
+                        }).join('');
+                        box.scrollTop = box.scrollHeight;
+                    }
+                }
+                async function sendChatMessage(e) {
+                    e.preventDefault();
+                    const input = document.getElementById('chat-input');
+                    const msg = input.value;
+                    if(!msg || !activeChatOrderId) return;
+                    input.value = '';
+                    const box = document.getElementById('chat-box');
+                    box.innerHTML += `<div style="display: flex; justify-content: flex-end;"><div style="max-width: 75%; padding: 0.75rem; border-radius: 1rem; font-size: 0.9rem; background: var(--brand); color: white; border-bottom-right-radius: 0;">${msg}</div></div>`;
+                    box.scrollTop = box.scrollHeight;
+                    await apiCall('sendChat', {
+                        orderId: activeChatOrderId,
+                        senderPhone: user.phone,
+                        message: msg
+                    });
+                }
+    </script>
+</body>
+
+</html>
