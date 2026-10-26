@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taker Dashboard | Tigu Seratega</title>
+
+<script>
+  try { if (localStorage.getItem('tiguseratega_theme') === 'dark') document.documentElement.classList.add('dark'); } catch (e) {}
+</script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="src/css/dashboard-taker.css">
+<link rel="icon" href="public/icon.png">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" onclick="location.href='index.html'">
+      <img class="logo-icon" src="public/icon.png" alt="logo" onerror="this.style.display='none'">
+      <div class="logo-text"><h1>TeguSeratega</h1><p>ትጉ ሠራተኛ</p></div>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="#" class="active" onclick="switchTab('providers');return false;">Find a pro</a>
+      <a href="#" onclick="switchTab('jobs');return false;">Find jobs</a>
+    </div>
+    <div class="nav-actions">
+      <button class="icon-btn" onclick="switchTab('notifications')" aria-label="Notifications">
+        <i data-lucide="bell"></i>
+        <span id="nav-notif-count" class="notif-count hidden">0</span>
+      </button>
+      <button class="icon-btn" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <i data-lucide="moon"></i>
+      </button>
+      <div class="user-pill" onclick="openEditModal()">
+        <img id="nav-avatar" src="" alt="avatar">
+        <span id="nav-name">Loading…</span>
+      </div>
+      <button class="icon-btn text-red" onclick="logout()" aria-label="Log out">
+        <i data-lucide="log-out"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main class="dashboard-container">
+
+  <header class="workspace-header">
+    <div class="flex-between">
+      <div>
+        <p class="workspace-label">YOUR WORKSPACE</p>
+        <h1>Hello, <span id="header-name">User</span> 👋</h1>
+        <p class="text-muted">Here's what's happening with your requests today.</p>
+      </div>
+      <button onclick="openEditModal()" class="btn-outline">
+        <i data-lucide="user-cog"></i> Edit profile
+      </button>
+    </div>
+
+    <div id="guest-banner" class="banner hidden">
+      <i data-lucide="info" style="width:16px;height:16px"></i>
+      You're browsing as a guest. <a href="login.html" style="color:inherit;text-decoration:underline;margin-left:.25rem">Log in</a> to see your real data.
+    </div>
+
+    <div id="offline-banner" class="banner hidden" style="background:rgba(239,68,68,.10);border-color:var(--red);color:#991b1b;display:flex;flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <i data-lucide="alert-triangle" style="width:16px;height:16px;flex-shrink:0"></i>
+        <b>Couldn't load live data from your Google Sheet.</b>
+      </div>
+      <div id="diag-detail" class="banner-detail"></div>
+      <div class="banner-actions">
+        <button class="btn-outline sm" onclick="runDiagnostic()" style="border-color:var(--red);color:#991b1b">
+          <i data-lucide="stethoscope"></i> Test connection
+        </button>
+        <button class="btn-outline sm" onclick="loadData()">
+          <i data-lucide="refresh-cw"></i> Retry
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout-grid">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar-card glass-panel">
+      <div class="user-profile-mini">
+        <img id="side-avatar" src="" class="side-avatar-img" alt="avatar">
+        <div>
+          <h4 id="side-name">User</h4>
+          <p>Service taker</p>
+        </div>
+      </div>
+      <nav class="side-nav">
+        <div id="nav-overview" class="nav-item active" onclick="switchTab('overview')"><i data-lucide="layout-grid"></i> Overview</div>
+        <div id="nav-providers" class="nav-item" onclick="switchTab('providers')"><i data-lucide="search"></i> Find a pro</div>
+        <div id="nav-orders" class="nav-item" onclick="showSidebarOrders()"><i data-lucide="file-text"></i> My requests</div>
+        <div id="nav-jobs" class="nav-item" onclick="switchTab('jobs')"><i data-lucide="briefcase"></i> Find jobs</div>
+        <div id="nav-notifications" class="nav-item" onclick="switchTab('notifications')"><i data-lucide="bell"></i> Notifications <span id="side-notif-count" class="count-badge hidden">0</span></div>
+        <div id="nav-chats" class="nav-item" onclick="switchTab('chats')"><i data-lucide="message-square"></i> Chat</div>
+        <div class="nav-item text-red" onclick="logout()"><i data-lucide="log-out"></i> Log out</div>
+      </nav>
+    </aside>
+
+    <!-- CONTENT -->
+    <div class="main-content-card glass-panel">
+
+      <section id="content-overview" class="tab-content active">
+        <div class="section-head">
+          <h2 class="section-title">Overview</h2>
+          <p class="text-muted small">Tap any card to see the details.</p>
+        </div>
+        <div class="horizontal-stats" id="overview-stats"></div>
+        <div id="overview-detail-container" class="hidden">
+          <div class="flex-between" style="margin-bottom:1rem">
+            <h3 id="detail-title"></h3>
+            <button class="btn-outline sm" onclick="backToOverview()">Back</button>
+          </div>
+          <div class="table-wrap">
+            <table class="detail-table">
+              <thead id="detail-thead"></thead>
+              <tbody id="detail-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="content-providers" class="tab-content">
+        <div class="section-head"><h2 class="section-title">Find a local professional</h2></div>
+        <div class="search-bar">
+          <input type="text" id="provider-search" placeholder="Search name, service or city…" oninput="renderProviders()">
+          <select id="category-filter" onchange="renderProviders()">
+            <option value="all">All categories</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="Carpentry">Carpentry</option>
+            <option value="Cleaning">Cleaning</option>
+            <option value="Painting">Painting</option>
+            <option value="Moving">Moving</option>
+          </select>
+        </div>
+        <div class="providers-grid" id="provider-grid"></div>
+      </section>
+
+      <section id="content-orders" class="tab-content">
+        <div class="section-head"><h2 class="section-title">My service requests</h2></div>
+        <div id="orders-list" class="flex-col"></div>
+      </section>
+
+      <section id="content-jobs" class="tab-content">
+        <div class="section-head"><h2 class="section-title">Find jobs</h2></div>
+        <div id="jobs-list" class="flex-col"></div>
+      </section>
+
+      <section id="content-chats" class="tab-content">
+        <div class="section-head">
+          <h2 class="section-title">Chats</h2>
+          <p class="text-muted small">You can chat once a provider accepts your request.</p>
+        </div>
+        <div id="chats-list" class="flex-col"></div>
+      </section>
+
+      <section id="content-notifications" class="tab-content">
+        <div class="section-head"><h2 class="section-title">Notifications</h2></div>
+        <div id="notifications-list" class="flex-col"></div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<!-- EDIT PROFILE MODAL -->
+<div id="edit-modal" class="modal">
+  <div class="modal-overlay" onclick="closeModal('edit-modal')"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Edit profile</h3>
+      <button type="button" class="close-btn" onclick="closeModal('edit-modal')"><i data-lucide="x"></i></button>
+    </div>
+    <form onsubmit="saveProfile(event)">
+      <div class="avatar-upload-container">
+        <div class="avatar-preview" onclick="document.getElementById('edit-img-file').click()">
+          <img id="edit-img-preview" src="" alt="avatar">
+          <div class="camera-overlay"><i data-lucide="camera"></i></div>
+        </div>
+        <input type="file" id="edit-img-file" accept="image/*" onchange="previewImage(event)" style="display:none">
+      </div>
+      <div class="form-group"><label>Full name</label><input type="text" id="edit-name" class="glass-input" required></div>
+      <div class="form-group"><label>Phone number</label><input type="tel" id="edit-phone" class="glass-input" placeholder="+2519xxxxxxxx"></div>
+      <div class="form-group"><label>Location</label><input type="text" id="edit-location" class="glass-input" placeholder="Addis Ababa"></div>
+      <button type="submit" id="save-profile-btn" class="btn-primary w-full" style="margin-top:.6rem">Save changes</button>
+    </form>
+  </div>
+</div>
+
+<!-- REQUEST MODAL -->
+<div id="request-modal" class="modal">
+  <div class="modal-overlay" onclick="closeModal('request-modal')"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Request service</h3>
+      <button type="button" class="close-btn" onclick="closeModal('request-modal')"><i data-lucide="x"></i></button>
+    </div>
+    <form onsubmit="submitRequest(event)">
+      <input type="hidden" id="req-provider-name">
+      <input type="hidden" id="req-provider-phone">
+      <h4 id="req-title" style="margin-bottom:1rem;color:var(--primary);font-size:.95rem"></h4>
+      <div class="form-group">
+        <label>Select service</label>
+        <select id="req-service" class="glass-input" required></select>
+      </div>
+      <div class="form-group relative">
+        <label>Your location</label>
+        <input type="text" id="req-location" class="glass-input" required placeholder="Start typing a city…" autocomplete="off" oninput="filterCities()" onfocus="filterCities()">
+        <ul id="req-city-list" class="city-list hidden"></ul>
+      </div>
+      <div class="form-group"><label>Budget (ETB)</label><input type="number" id="req-price" class="glass-input" min="1" required placeholder="2500"></div>
+      <div class="form-group"><label>Details</label><textarea id="req-note" class="glass-input" rows="3" required placeholder="Describe what you need…"></textarea></div>
+      <button type="submit" id="req-submit-btn" class="btn-primary w-full" style="padding:.9rem">Order now</button>
+    </form>
+  </div>
+</div>
+
+<!-- APPLY MODAL -->
+<div id="apply-modal" class="modal">
+  <div class="modal-overlay" onclick="closeModal('apply-modal')"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Submit proposal</h3>
+      <button type="button" class="close-btn" onclick="closeModal('apply-modal')"><i data-lucide="x"></i></button>
+    </div>
+    <form onsubmit="submitProposal(event)">
+      <input type="hidden" id="apply-job-id">
+      <input type="hidden" id="apply-employer-phone">
+      <h4 id="apply-job-title" style="margin-bottom:1rem;color:var(--primary);font-size:.95rem"></h4>
+      <div class="form-group"><label>Expected pay (ETB)</label><input type="number" id="apply-pay" class="glass-input" min="1" required placeholder="e.g. 5000"></div>
+      <div class="form-group"><label>Cover note / proposal</label><textarea id="apply-note" class="glass-input" rows="4" required placeholder="Explain why you are a great fit…"></textarea></div>
+      <button type="submit" id="apply-submit-btn" class="btn-primary w-full" style="padding:.9rem">Submit proposal</button>
+    </form>
+  </div>
+</div>
+
+<!-- CHAT MODAL -->
+<div id="chat-modal" class="modal">
+  <div class="modal-overlay" onclick="closeModal('chat-modal')"></div>
+  <div class="modal-content chat">
+    <div class="modal-header" style="margin-bottom:.85rem">
+      <div>
+        <h3 id="chat-title">Chat</h3>
+        <p>Order #<span id="chat-order-id"></span></p>
+      </div>
+      <button type="button" class="close-btn" onclick="closeModal('chat-modal')"><i data-lucide="x"></i></button>
+    </div>
+    <div id="chat-box"></div>
+    <form class="chat-form" onsubmit="sendChatMessage(event)">
+      <input type="text" id="chat-input" class="glass-input" required placeholder="Type a message…" autocomplete="off">
+      <button type="submit" class="chat-send" aria-label="Send"><i data-lucide="send"></i></button>
+    </form>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="src/js/dashboard-taker.js"></script>
+</body>
+</html>
