@@ -27,11 +27,11 @@ Tigu Serategna is currently under development. Our team is working toward buildi
 
 ## 👥 Development Team
 
-| Name | Role |
-|---|---|
-| **Dawit Birhanu** | Frontend Development |
-| **Nardos Fekadu** | Frontend Development |
-| **Kebron Ashenafi** | Frontend Development & Google Apps Script Backend Development |
+| Name | Role |CTC|
+|---|---|---|
+| **Dawit Birhanu** | Frontend Development |CTC-4732-26|
+| **Nardos Fekadu** | Frontend Development |CTC-1096-26|
+| **Kebron Ashenafi** | Frontend & Google Apps Script Backend Development |CTC-673-26|
 
 ## 🌍 Our Vision
 
